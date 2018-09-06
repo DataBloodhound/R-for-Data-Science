@@ -32,8 +32,19 @@ head(df)
 ```
 
 
+## Creating a ggplot
+The most effective way to show relationship between two variables is scatter plot. We use _displ_ as x axis
+and _hwy_ as y axis.
 
+```{r scatter_plot}
+ggplot(df) +
+    geom_point(mapping = aes(x = displ, y = hwy))
+```
 
+The scatter plot shows negative relationship between fuel efficiency and engine size. Which means that 
+cars with bigger engines consume more fuel. 
+_ggplot()_ function creates empty graph, then with *geom_point()* function we add points layer to empty 
+graph.
 
 
 
