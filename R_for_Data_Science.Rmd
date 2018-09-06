@@ -5,26 +5,46 @@ date: "September 6, 2018"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Chapter 1. Data Visualization with ggplot2.
+
+## Introduction
+The most effective way to grasp some insights from data is to visualize it. The most effective library to 
+visualize data is ggplot2. "gg" stands for grammar of graphics. To use ggplot2 we need to initialize it.
+
+```{r load_libraries}
+library(tidyverse)
 ```
 
-## R Markdown
+This one line of code loads different packages to analyze and visualize data. There's some conflicts in 
+function names of dplyr package and core R functions. To specify function from package we need to write 
+package::function. For example: dplyr::filter().
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## First Steps
+Let's use ggplot2 package to answer a question: do cars with big engine use more fuel than cars with 
+small engine? It is intuitive that they do, but let's prove it visually. In addition, we can find out 
+if releationship between engine size and fuel efficiency is linear or nonlinear. We used preload data 
+from ggplot2 - mpg. It is observations of 234 cars from US Environment Protection Agency. 
 
-```{r cars}
-summary(cars)
+```{r data}
+df = ggplot2::mpg
+head(df)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
