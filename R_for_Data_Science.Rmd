@@ -2,7 +2,8 @@
 title: "R_for_Data_Science"
 author: "Alibek"
 date: "September 6, 2018"
-output: html_document
+output: html_document:
+    keep_md: true
 ---
 
 # Chapter 1. Data Visualization with ggplot2.
