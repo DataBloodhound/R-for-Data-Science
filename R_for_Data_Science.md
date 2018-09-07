@@ -82,6 +82,113 @@ cars with bigger engines consume more fuel.
 _ggplot()_ function creates empty graph, then with *geom_point()* function we add points layer to empty 
 graph.
 
+## Exercise
+Make scatter plot _hwy_ vs. _cyl_.
+
+
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = hwy, y = cyl))
+```
+
+![](R_for_Data_Science_files/figure-html/scatter_plot_hwy_vs_cyl-1.png)<!-- -->
+
+Make scatter plot _class_ vs. _drv_.
+
+
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = class, y =drv))
+```
+
+![](R_for_Data_Science_files/figure-html/scatter_plot_class_vs_drv-1.png)<!-- -->
+
+
+## Aesthetic Mappings
+_The greatest value of a picture is when it forces us to notice what we never expected to see. -John Tukey_
+
+Aesthetic function maps data into axis, also it can describe size of points, shape of points and color of 
+points. Below, we'll plot same scatter plot with different colors for class of cars.
+
+
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+![](R_for_Data_Science_files/figure-html/scatter_plot_displ_hwy_color_class-1.png)<!-- -->
+
+Besides colors of class, we can map also size of a points:
+
+
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy, size = class))
+```
+
+```
+## Warning: Using size for a discrete variable is not advised.
+```
+
+![](R_for_Data_Science_files/figure-html/scatter_plot_displ_hwy_size_class-1.png)<!-- -->
+
+There's warning that setting size of points to class is not good idea, since class variable is unordered 
+categorical varaible. Transparency of points and shape of points can be mapped in aes function too.
+
+
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+```
+
+![](R_for_Data_Science_files/figure-html/scatter_plot_shape_transparency-1.png)<!-- -->
+
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+```
+
+```
+## Warning: The shape palette can deal with a maximum of 6 discrete values
+## because more than 6 becomes difficult to discriminate; you have 7.
+## Consider specifying shapes manually if you must have them.
+```
+
+```
+## Warning: Removed 62 rows containing missing values (geom_point).
+```
+
+![](R_for_Data_Science_files/figure-html/scatter_plot_shape_transparency-2.png)<!-- -->
+
+There's only 6 type of shapes, and we have 7 categories for a class variable, so suv points didn't assign 
+to any shape points. We can set aesthetic properties, for example we can specify color of points:
+
+
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy), color = 'blue')
+```
+
+![](R_for_Data_Science_files/figure-html/scatter_plot_blue-1.png)<!-- -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
