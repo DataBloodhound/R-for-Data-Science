@@ -176,18 +176,168 @@ ggplot(data = mpg) +
 ![](R_for_Data_Science_files/figure-html/scatter_plot_blue-1.png)<!-- -->
 
 
+## Facets
+To split categorical data into different plots we can use different facets - subplots that use different 
+subsets of data. Example:
 
 
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy)) + 
+    facet_wrap(~ class, nrow = 2)
+```
+
+![](R_for_Data_Science_files/figure-html/facet_wrap-1.png)<!-- -->
+
+To facet a plot on the combination of categorical data we should use *facet_frid()* function. Example:
 
 
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy)) + 
+    facet_grid(drv ~ cyl)
+```
+
+![](R_for_Data_Science_files/figure-html/facet_grid-1.png)<!-- -->
 
 
+## Geometric Objects
+Same x and y variables can be plotted in different ways. It depends on geom function you put it. Example:
 
 
+```r
+p = ggplot(data = mpg)
+
+p + 
+    geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+![](R_for_Data_Science_files/figure-html/different_geom-1.png)<!-- -->
+
+```r
+p + 
+    geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+![](R_for_Data_Science_files/figure-html/different_geom-2.png)<!-- -->
+
+Not every argument in *geom_point()* function works in *geom_smooth()* function. You can not set shape of 
+line, howerver you can set line type. 
 
 
+```r
+p + 
+    geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+![](R_for_Data_Science_files/figure-html/linetype-1.png)<!-- -->
+
+ggplot2 provides over 30 geoms, and extension package contains even more. We can display multiple geoms:
 
 
+```r
+p + 
+    geom_point(mapping = aes(x = displ, y = hwy)) + 
+    geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+![](R_for_Data_Science_files/figure-html/multiple_geoms-1.png)<!-- -->
+
+Instead of writing x and y in every geom, we can put them inside ggplot, which set these axes as global 
+for every geom:
+
+
+```r
+p = ggplot(data = mpg, mapping = aes(x = displ, y = hwy))
+
+p + 
+    geom_point() + 
+    geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+![](R_for_Data_Science_files/figure-html/global_axes-1.png)<!-- -->
+
+It is exact same plot as previous one. Still we can add some aesthetics into geom functions:
+
+
+```r
+p +
+    geom_point(mapping = aes(color = class)) + 
+    geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+![](R_for_Data_Science_files/figure-html/local_aes-1.png)<!-- -->
+
+Local variables or data overwrite global variables or data. 
+
+
+```r
+p + 
+    geom_point(mapping = aes(color = class)) + 
+    geom_smooth(data = filter(df, class == "subcompact"), se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+![](R_for_Data_Science_files/figure-html/overwrite-1.png)<!-- -->
+
+
+## Statistical Transformations
+Bar charts can reveal something interesting about data. Below is a chart which shows number of diamonds 
+grouped by their cuts.
+
+
+```r
+p = ggplot(data = diamonds)
+
+p + 
+    geom_bar(mapping = aes(x = cut))
+```
+
+![](R_for_Data_Science_files/figure-html/barchart-1.png)<!-- -->
+
+This chart shows that in dataset, there's more diamonds with high-quality cuts. Instead of count, we can 
+specify proportions of diamond in each cut.
+
+
+```r
+p + 
+    geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+```
+
+![](R_for_Data_Science_files/figure-html/proportion_barchart-1.png)<!-- -->
+
+We can map some summary stats to the chart with *stat_summary()* function:
+
+
+```r
+p + 
+    stat_summary(mapping = aes(x = cut, y = depth), fun.ymin = min, fun.ymax = max, fun.y = median)
+```
+
+![](R_for_Data_Science_files/figure-html/stat_summary-1.png)<!-- -->
 
 
 
