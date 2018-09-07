@@ -340,19 +340,96 @@ p +
 ![](R_for_Data_Science_files/figure-html/stat_summary-1.png)<!-- -->
 
 
+## Position Adjustments
+You can fill barcharts with colors. If you fill with another variable, like clarity, barchart automaticallly 
+will be stacked:
 
 
+```r
+p + 
+    geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+![](R_for_Data_Science_files/figure-html/stacked_barchart-1.png)<!-- -->
+
+Attribute _position_ in geom_bar() function will make stacked barplot with same height:
 
 
+```r
+p + 
+    geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+```
+
+![](R_for_Data_Science_files/figure-html/stacked_same-1.png)<!-- -->
+
+Position 'dodge' place bars beside each other:
 
 
+```r
+p + 
+    geom_bar(aes(x = cut, fill = clarity), position = "dodge")
+```
+
+![](R_for_Data_Science_files/figure-html/position_dodge-1.png)<!-- -->
+
+Not useful for barcharts, but very useful in scatterplots is adding some jitter. Since some points can 
+overlap each other, we will add some small amount of noise to the position of points:
 
 
+```r
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy), position = 'jitter')
+```
+
+![](R_for_Data_Science_files/figure-html/jitter-1.png)<!-- -->
+
+Instead of defining position in geom_point() function, ggplot2 has handy geom_jitter() function, which is 
+pretty much same:
 
 
+```r
+ggplot(data = mpg) + 
+    geom_jitter(mapping = aes(x = displ, y = hwy))
+```
+
+![](R_for_Data_Science_files/figure-html/geom_jitter-1.png)<!-- -->
 
 
+## Coordinate Systems
+By default ggplot2 uses Cartesian coordiante system, but also allows to use other coordinate systems or 
+flip coordiantes. For example, if you want to plot boxplots vertically:
 
 
+```r
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+    geom_boxplot()
+```
 
+![](R_for_Data_Science_files/figure-html/flip_coordinates-1.png)<!-- -->
+
+```r
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+    geom_boxplot() + 
+    coord_flip()
+```
+
+![](R_for_Data_Science_files/figure-html/flip_coordinates-2.png)<!-- -->
+
+Polar coordinates can interestingly show barcharts:
+
+
+```r
+ggplot(data = diamonds) + 
+    geom_bar(mapping = aes(x = cut, fill = cut), show.legend = F, width = 1) + 
+    theme(aspect.ratio = 1) + 
+    labs(x = NULL, y = NULL) + 
+    coord_flip() + 
+    coord_polar()
+```
+
+```
+## Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+```
+
+![](R_for_Data_Science_files/figure-html/polar_coord-1.png)<!-- -->
 
