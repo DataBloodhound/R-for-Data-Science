@@ -1,0 +1,156 @@
+---
+title: "R for Data Science chapter 3"
+author: "Alibek Galiyev"
+date: "September 7, 2018"
+output:
+    html_document:
+        keep_md: true
+---
+
+# Chapter 3
+
+```{r load_libraries}
+library(nycflights13)
+library(tidyverse)
+```
+
+To try _dplyr_ package we will use nyflights13::flights data, which is all flights departed from NY in 2013. 
+Let's see data itself:
+
+```{r data}
+df = nycflights13::flights
+
+head(df)
+```
+
+This data in tibble format, which is more optimized to work with tidyverse. All columns have their own 
+types as int, dbl, chr, dttm. There's 7 types in tibble dataformat:
+
+* int - integer numbers
+* dbl - real numbers
+* chr - character vectors or strings
+* dttm - datetime
+* lgl - boolean TRUE or FALSE
+* fctr - categorical variables
+* date - dates
+
+## dplyr basics
+dplyr package has 5 key functions:
+
+* filter() - select given rows from dataset
+* arrange() - reorder rows
+* select() - pick columns by their names
+* mutate() - create new columns
+* summarize() - grouping data by some summary stats
+
+## Filter Rows
+*filter()* allows to subset observations based on some logic. For example, if we want to select all 
+flights from January 1st:
+
+```{r filter}
+jan1 = filter(df, month == 1, day == 1)
+```
+
+R saves result to a variable. If you want to print out filtering and assign to some variable, you can wrap 
+up into parentheses.
+
+```{r filter_and_print}
+(dec25 = filter(df, month == 12, day == 25))
+```
+
+
+## Comparisons
+R has standard comparison operators like: >, <, >=, <=, ==. Since R store finite number of digits in float 
+numbers, you can observe some strange behavior:
+
+```{r comparisons}
+sqrt(2) ^ 2 == 2
+```
+
+Instead of using "==", you should use _near()_ function for those kind of comparisons.
+
+```{r near}
+near(sqrt(2)^2, 2)
+```
+
+
+## Logical Operators
+For "and" operator you can use "&" sign, for "or" use "|", and "!" for "not".
+
+```{r logical}
+filter(df, month == 11 | month == 12)
+```
+
+Instaed of using "|" in above exercise, it is more appropriate to use %in%.
+
+```{r in}
+nov_dec = filter(df, month %in% c(11, 12))
+```
+
+
+## Arrange Rows with arrange()
+_arrange()_ works in similar way as filter, except it just reorder rows in given columns.
+
+```{r arrange}
+arrange(df, year, month, day)
+```
+
+_desc()_ function will make reverse order of values in columns:
+
+```{r desc_arrange}
+arrange(df, desc(arr_delay))
+```
+
+Important note, that missing vaslues (NAs) are always sorted at the end!
+
+
+## Select Columns with select()
+With _select()_ function you can select given columns by their names.
+
+```{r select}
+select(df, year, month, day)
+```
+
+Select all columns between year and day:
+```{r select_year_day}
+select(df, year:day)
+```
+
+Select all columns except from year and day:
+
+```{r select_except}
+select(df, -(year:day))
+```
+
+There are some helper function to use in select:
+
+- starts_with("a") matches column names which starts with "a"
+- ends_with("a") matches column names which ends with "a"
+- contains("dgh") matches column names which contains "dgh"
+- matches("(.)\\1") matches column names due to regular expression
+- num_range("col", 1:3) matches "col1", "col2", "col3"
+
+To rename column name you should use _rename()_ function:
+
+```{r rename}
+rename(df, tail_num = tailnum)
+```
+
+If you want to move some columns to the begining, function _everything()_ can be helpful:
+
+```{r everything}
+select(df, time_hour, air_time, everything())
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
