@@ -143,6 +143,54 @@ select(df, time_hour, air_time, everything())
 ```
 
 
+## Add New Variables with mutate()
+_mutate()_ function used to create new variables from existing ones with some transformation functions. 
+
+```{r mutate}
+df_sml = select(df, year:day, ends_with('delay'), distance, air_time)
+(mutate(df_sml, gain = arr_delay - dep_delay, speed = distance / air_time * 60))
+```
+
+*mutate()* function allow you to use previously created variables as reference:
+
+```{r mutate2}
+(mutate(df_sml, gain = arr_delay - dep_delay, hours = air_time / 60, gain_per_hour = gain / hours))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
