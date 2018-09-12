@@ -157,13 +157,48 @@ df_sml = select(df, year:day, ends_with('delay'), distance, air_time)
 (mutate(df_sml, gain = arr_delay - dep_delay, hours = air_time / 60, gain_per_hour = gain / hours))
 ```
 
+If you want to keep only new created variable, use _transmute()_:
+
+```{r transmute}
+(transmute(df, gain = arr_delay - dep_delay, hours = air_time / 60, gain_per_hour = gain / hours))
+```
+
+## Useful Creation Functions
+There are many functions that you can use to create new variables. It includes basic arithmetic operations, 
+log and exp functions, offsets like _lag()_ and _lead()_, cumulative and rolling aggregates like _cumsum()_, 
+_cumprod()_, _cummin()_, _cummax()_, _cummean()_, logical opeartions like ">", "<", ">=", "<=", rankings 
+like *min_rank()*, *row_number()*, *dense_rank()*, *percent_rank()*, *cume_dist()*, *ntitle()*. 
 
 
+## Grouped Summaries with summarize()
+*summarize()* function collapse a data frame to a single row. It's useful with *group_by()* function. For 
+example if you want to obtain average delay per day:
+
+```{r avg_delay}
+(group_by(df, year, month, day) %>%
+     summarize(delay = mean(dep_delay, na.rm = T)))
+```
 
 
+## Combining Multiple Operations with the Pipe
+If you want to get relationship between distance and average delay, you can get data with *group_by()*, 
+*summarize()* and *filter()*:
+
+```{r dist_vs_delay}
+delay = df %>%
+    group_by(dest) %>%
+    summarize(count = n(),
+              dist = mean(distance, na.rm = T),
+              delay = mean(arr_delay, na.rm = T)) %>%
+    filter(count > 20, dest != "HNL")
+
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) + 
+    geom_point(aes(size = count), alpha = 1/3) + 
+    geom_smooth(se = F)
+```
 
 
-
+## Missing Values
 
 
 

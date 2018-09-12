@@ -372,6 +372,169 @@ select(df, time_hour, air_time, everything())
 ```
 
 
+## Add New Variables with mutate()
+_mutate()_ function used to create new variables from existing ones with some transformation functions. 
+
+
+```r
+df_sml = select(df, year:day, ends_with('delay'), distance, air_time)
+(mutate(df_sml, gain = arr_delay - dep_delay, speed = distance / air_time * 60))
+```
+
+```
+## # A tibble: 336,776 x 9
+##     year month   day dep_delay arr_delay distance air_time  gain speed
+##    <int> <int> <int>     <dbl>     <dbl>    <dbl>    <dbl> <dbl> <dbl>
+##  1  2013     1     1         2        11     1400      227     9  370.
+##  2  2013     1     1         4        20     1416      227    16  374.
+##  3  2013     1     1         2        33     1089      160    31  408.
+##  4  2013     1     1        -1       -18     1576      183   -17  517.
+##  5  2013     1     1        -6       -25      762      116   -19  394.
+##  6  2013     1     1        -4        12      719      150    16  288.
+##  7  2013     1     1        -5        19     1065      158    24  404.
+##  8  2013     1     1        -3       -14      229       53   -11  259.
+##  9  2013     1     1        -3        -8      944      140    -5  405.
+## 10  2013     1     1        -2         8      733      138    10  319.
+## # ... with 336,766 more rows
+```
+
+*mutate()* function allow you to use previously created variables as reference:
+
+
+```r
+(mutate(df_sml, gain = arr_delay - dep_delay, hours = air_time / 60, gain_per_hour = gain / hours))
+```
+
+```
+## # A tibble: 336,776 x 10
+##     year month   day dep_delay arr_delay distance air_time  gain hours
+##    <int> <int> <int>     <dbl>     <dbl>    <dbl>    <dbl> <dbl> <dbl>
+##  1  2013     1     1         2        11     1400      227     9 3.78 
+##  2  2013     1     1         4        20     1416      227    16 3.78 
+##  3  2013     1     1         2        33     1089      160    31 2.67 
+##  4  2013     1     1        -1       -18     1576      183   -17 3.05 
+##  5  2013     1     1        -6       -25      762      116   -19 1.93 
+##  6  2013     1     1        -4        12      719      150    16 2.5  
+##  7  2013     1     1        -5        19     1065      158    24 2.63 
+##  8  2013     1     1        -3       -14      229       53   -11 0.883
+##  9  2013     1     1        -3        -8      944      140    -5 2.33 
+## 10  2013     1     1        -2         8      733      138    10 2.3  
+## # ... with 336,766 more rows, and 1 more variable: gain_per_hour <dbl>
+```
+
+If you want to keep only new created variable, use _transmute()_:
+
+
+```r
+(transmute(df, gain = arr_delay - dep_delay, hours = air_time / 60, gain_per_hour = gain / hours))
+```
+
+```
+## # A tibble: 336,776 x 3
+##     gain hours gain_per_hour
+##    <dbl> <dbl>         <dbl>
+##  1     9 3.78           2.38
+##  2    16 3.78           4.23
+##  3    31 2.67          11.6 
+##  4   -17 3.05          -5.57
+##  5   -19 1.93          -9.83
+##  6    16 2.5            6.4 
+##  7    24 2.63           9.11
+##  8   -11 0.883        -12.5 
+##  9    -5 2.33          -2.14
+## 10    10 2.3            4.35
+## # ... with 336,766 more rows
+```
+
+## Useful Creation Functions
+There are many functions that you can use to create new variables. It includes basic arithmetic operations, 
+log and exp functions, offsets like _lag()_ and _lead()_, cumulative and rolling aggregates like _cumsum()_, 
+_cumprod()_, _cummin()_, _cummax()_, _cummean()_, logical opeartions like ">", "<", ">=", "<=", rankings 
+like *min_rank()*, *row_number()*, *dense_rank()*, *percent_rank()*, *cume_dist()*, *ntitle()*. 
+
+
+## Grouped Summaries with summarize()
+*summarize()* function collapse a data frame to a single row. It's useful with *group_by()* function. For 
+example if you want to obtain average delay per day:
+
+
+```r
+(group_by(df, year, month, day) %>%
+     summarize(delay = mean(dep_delay, na.rm = T)))
+```
+
+```
+## # A tibble: 365 x 4
+## # Groups:   year, month [?]
+##     year month   day delay
+##    <int> <int> <int> <dbl>
+##  1  2013     1     1 11.5 
+##  2  2013     1     2 13.9 
+##  3  2013     1     3 11.0 
+##  4  2013     1     4  8.95
+##  5  2013     1     5  5.73
+##  6  2013     1     6  7.15
+##  7  2013     1     7  5.42
+##  8  2013     1     8  2.55
+##  9  2013     1     9  2.28
+## 10  2013     1    10  2.84
+## # ... with 355 more rows
+```
+
+
+## Combining Multiple Operations with the Pipe
+If you want to get relationship between distance and average delay, you can get data with *group_by()*, 
+*summarize()* and *filter()*:
+
+
+```r
+delay = df %>%
+    group_by(dest) %>%
+    summarize(count = n(),
+              dist = mean(distance, na.rm = T),
+              delay = mean(arr_delay, na.rm = T)) %>%
+    filter(count > 20, dest != "HNL")
+
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) + 
+    geom_point(aes(size = count), alpha = 1/3) + 
+    geom_smooth(se = F)
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+![](R_for_Data_Science_chapter_3_files/figure-html/dist_vs_delay-1.png)<!-- -->
+
+
+## Missing Values
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
