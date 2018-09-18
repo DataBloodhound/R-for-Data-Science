@@ -508,16 +508,230 @@ ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
 
 
 ## Missing Values
+If you don't use na.rm argument, aggregate functions in summarize yield _na_ values. 
 
 
+```r
+(df %>%
+     group_by(year, month, day) %>%
+     summarize(mean = mean(dep_delay)))
+```
+
+```
+## # A tibble: 365 x 4
+## # Groups:   year, month [?]
+##     year month   day  mean
+##    <int> <int> <int> <dbl>
+##  1  2013     1     1    NA
+##  2  2013     1     2    NA
+##  3  2013     1     3    NA
+##  4  2013     1     4    NA
+##  5  2013     1     5    NA
+##  6  2013     1     6    NA
+##  7  2013     1     7    NA
+##  8  2013     1     8    NA
+##  9  2013     1     9    NA
+## 10  2013     1    10    NA
+## # ... with 355 more rows
+```
+
+If there's any _na_ values in column, aggregate functions always return _na_ values for entire result. 
+Fortunately, all aggregate functions have _na.rm_ argument, which removes missing values prior to calculation. 
 
 
+```r
+(df %>%
+     group_by(year, month, day) %>%
+     summarize(mean = mean(dep_delay, na.rm = T)))
+```
+
+```
+## # A tibble: 365 x 4
+## # Groups:   year, month [?]
+##     year month   day  mean
+##    <int> <int> <int> <dbl>
+##  1  2013     1     1 11.5 
+##  2  2013     1     2 13.9 
+##  3  2013     1     3 11.0 
+##  4  2013     1     4  8.95
+##  5  2013     1     5  5.73
+##  6  2013     1     6  7.15
+##  7  2013     1     7  5.42
+##  8  2013     1     8  2.55
+##  9  2013     1     9  2.28
+## 10  2013     1    10  2.84
+## # ... with 355 more rows
+```
 
 
+## Count
+It is always good idea to include _count_ to aggregated data with _n()_, or count of non-na values with 
+_sum(!is.na(x))_. It helps you to avoid working with small number of observations in aggreagted data. 
+For example let's plot highest average delays identified by tailnum:
 
 
+```r
+delays = df %>%
+    filter(!is.na(dep_delay), !is.na(arr_delay)) %>%
+    group_by(tailnum) %>%
+    summarize(delay = mean(arr_delay))
+
+ggplot(data = delays, mapping = aes(x = delay)) + 
+    geom_freqpoly(binwidth = 10)
+```
+
+![](R_for_Data_Science_chapter_3_files/figure-html/delays_mean-1.png)<!-- -->
+
+From plot above you can see that some planes have 5 hours average delays. But if you plot scatterplot 
+of average delay and number of observations, you can understand that plot above is not reliable:
 
 
+```r
+delays = df %>%
+    filter(!is.na(arr_delay), !is.na(dep_delay)) %>%
+    group_by(tailnum) %>%
+    summarize(delay = mean(arr_delay, na.rm = T)
+              ,n = n())
+
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+    geom_point(alpha = 1/10)
+```
+
+![](R_for_Data_Science_chapter_3_files/figure-html/delays_cnt-1.png)<!-- -->
+
+You should notice that with smaller number of observations, you have bigger variations of average delays. 
+So, it is a good idea to filter out small number of observations from data frame:
+
+
+```r
+delays %>%
+    filter(n > 25) %>%
+    ggplot(mapping = aes(x = n, y = delay)) + 
+    geom_point(alpha = 1 / 10)
+```
+
+![](R_for_Data_Science_chapter_3_files/figure-html/filter_out_small_observations-1.png)<!-- -->
+
+
+## Useful Summary Functions
+Sometimes _median_ value more useful than _mean_. Also, you can use some logical subsetting in _summarize_ 
+function.
+
+
+```r
+(df %>%
+    filter(!is.na(arr_delay)) %>%
+    group_by(year, month, day) %>%
+    summarize(avg_delay1 = mean(arr_delay, na.rm = T)
+              ,avg_delay2 = mean(arr_delay[arr_delay > 0], na.rm = T)
+              ,median_delay = median(arr_delay, na.rm = T)))
+```
+
+```
+## # A tibble: 365 x 6
+## # Groups:   year, month [?]
+##     year month   day avg_delay1 avg_delay2 median_delay
+##    <int> <int> <int>      <dbl>      <dbl>        <dbl>
+##  1  2013     1     1     12.7         32.5            3
+##  2  2013     1     2     12.7         32.0            4
+##  3  2013     1     3      5.73        27.7            1
+##  4  2013     1     4     -1.93        28.3           -8
+##  5  2013     1     5     -1.53        22.6           -7
+##  6  2013     1     6      4.24        24.4           -1
+##  7  2013     1     7     -4.95        27.8          -10
+##  8  2013     1     8     -3.23        20.8           -7
+##  9  2013     1     9     -0.264       25.6           -6
+## 10  2013     1    10     -5.90        27.3          -11
+## # ... with 355 more rows
+```
+
+Measures of spread like standard deviation (sd), interquartile range (IQR) and median absolute deviation 
+(mad) are very useful functions to understand data.
+
+
+```r
+(df %>%
+    group_by(dest) %>%
+    summarize(distance_sd = sd(distance, na.rm = T)
+              ,distance_IQR = IQR(distance, na.rm = T)
+              ,distance_mad = mad(distance, na.rm = T)))
+```
+
+```
+## # A tibble: 105 x 4
+##    dest  distance_sd distance_IQR distance_mad
+##    <chr>       <dbl>        <dbl>        <dbl>
+##  1 ABQ        0                 0            0
+##  2 ACK        0                 0            0
+##  3 ALB        0                 0            0
+##  4 ANC        0                 0            0
+##  5 ATL        7.16             16            0
+##  6 AUS        8.32             17            0
+##  7 AVL        3.00              0            0
+##  8 BDL        0                 0            0
+##  9 BGR        0                 0            0
+## 10 BHM        0.0580            0            0
+## # ... with 95 more rows
+```
+
+Measures of rank help to find particular quantile value, or min, max values:
+
+
+```r
+(df %>%
+     group_by(year, month, day) %>%
+     summarize(first = min(dep_time, na.rm = T)
+               ,last = max(dep_time, na.rm = T)
+               ,q25 = quantile(dep_time, 0.25, na.rm = T)
+               ,q75 = quantile(dep_time, 0.75, na.rm = T)))
+```
+
+```
+## # A tibble: 365 x 7
+## # Groups:   year, month [?]
+##     year month   day first  last   q25   q75
+##    <int> <int> <int> <int> <int> <dbl> <dbl>
+##  1  2013     1     1   517  2356  940. 1757.
+##  2  2013     1     2    42  2354  912. 1750.
+##  3  2013     1     3    32  2349  909  1756.
+##  4  2013     1     4    25  2358  901  1745 
+##  5  2013     1     5    14  2357  859  1710 
+##  6  2013     1     6    16  2355 1004  1758 
+##  7  2013     1     7    49  2359  907. 1728 
+##  8  2013     1     8   454  2351  858  1728.
+##  9  2013     1     9     2  2252  858  1725 
+## 10  2013     1    10     3  2320  859  1733 
+## # ... with 355 more rows
+```
+
+Counts calculated not only with _n()_, but also with _sum(!is.na(x))_ for non-missing values, *n_distinct()* 
+for distinct amount of values:
+
+
+```r
+(df %>%
+    group_by(dest) %>%
+    summarize(cnt = n()
+              ,cnt_distinct = n_distinct(carrier)) %>%
+    arrange(desc(cnt_distinct)))
+```
+
+```
+## # A tibble: 105 x 3
+##    dest    cnt cnt_distinct
+##    <chr> <int>        <int>
+##  1 ATL   17215            7
+##  2 BOS   15508            7
+##  3 CLT   14064            7
+##  4 ORD   17283            7
+##  5 TPA    7466            7
+##  6 AUS    2439            6
+##  7 DCA    9705            6
+##  8 DTW    9384            6
+##  9 IAD    5700            6
+## 10 MSP    7185            6
+## # ... with 95 more rows
+```
 
 
 
